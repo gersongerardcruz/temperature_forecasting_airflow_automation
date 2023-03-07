@@ -100,3 +100,6 @@ mlflow-*
 
 # Ignore local artifacts and data
 artifacts/
+
+# Ignore environmental variables
+.env
