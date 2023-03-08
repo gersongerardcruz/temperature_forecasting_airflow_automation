@@ -35,7 +35,11 @@ def create_lag_window(df, num_lags=3, delay=1):
     
     return df_processed
 
-# Load the data into a dataframe, preprocess, and save
+# Load the data into a dataframe, preprocess, split into train-test, and save
 df = pd.read_csv("data/raw/train.csv")
 df_processed = create_lag_window(df)
-df_processed.to_csv("data/processed/train.csv")
+df_processed = df_processed.reset_index(drop=True)
+df_train = df_processed.loc[:int(df_processed.shape[0]*0.8),:]
+df_test = df_processed.loc[int(df_processed.shape[0]*0.8):,:]
+df_train.to_csv("data/processed/train.csv")
+df_test.to_csv("data/processed/test.csv")
