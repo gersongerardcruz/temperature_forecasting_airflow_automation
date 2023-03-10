@@ -68,8 +68,8 @@ def train_automl_model(train_data: pd.DataFrame, target_column: str, max_models:
         best_model_id = leaderboard.loc[0, "model_id"]
         best_model = h2o.get_model(best_model_id)
 
-        # Save the H2O model to disk
-        model_path = h2o.save_model(best_model, path='./h2o_automl_models', force=True)
+        # Save the H2O model to disk locally to prepare for ec2 deployment
+        model_path = h2o.download_model(best_model, path='ec2_deployment/model')
 
         # Log the H2O model artifact to MLflow
         client.log_artifact(run_id, model_path)
