@@ -1,8 +1,12 @@
 import pandas as pd
-import s3fs
-from io import StringIO
+import boto3
+import io 
+import os
 from openmeteo_py import Hourly, Options, OWmanager
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def run_get_weather_data(latitude=14.5995, longitude=120.9842, past_days=2, timezone="Asia/Shanghai"):
     """
@@ -45,17 +49,19 @@ def run_get_weather_data(latitude=14.5995, longitude=120.9842, past_days=2, time
     ]
     df = df[columns_to_keep]
 
-    # Create an S3FileSystem object using the IAM role assigned to the EC2 instance
-    s3 = s3fs.S3FileSystem()
+    access_key = os.getenv("AWS_ACCESS_KEY")
+    secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
 
-    # Set the S3 bucket and key (filename) you want to upload the file to
-    BUCKET = 'gerson-airflow'
-    KEY = 'train.csv'
+    # Create an S3FileSystem object with the IAM role specified
+    s3 = boto3.client('s3', aws_access_key_id=access_key, aws_secret_access_key=secret_key, region_name="ap-southeast-1")
 
-    # Convert the DataFrame to a CSV file in memory
-    csv_buffer = StringIO()
+    bucket_name = "gerson-airflow"
+    key = "train.csv"
+
+    # Write data to a file on S3
+    csv_buffer = io.StringIO()
     df.to_csv(csv_buffer, index=False)
+
+    s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=key)
     
-    # Upload the CSV file to S3
-    with s3.open(f'{BUCKET}/{KEY}', 'w') as s3_file:
-        s3_file.write(csv_buffer.getvalue())
+
