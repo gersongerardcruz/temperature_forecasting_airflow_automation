@@ -51,17 +51,16 @@ def run_get_weather_data(latitude=14.5995, longitude=120.9842, past_days=2, time
 
     access_key = os.getenv("AWS_ACCESS_KEY")
     secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+    session_token = os.getenv("AWS_SESSION_TOKEN")
 
     # Create an S3FileSystem object with the IAM role specified
-    s3 = boto3.client('s3', aws_access_key_id=access_key, aws_secret_access_key=secret_key, region_name="ap-southeast-1")
+    s3 = boto3.client('s3', aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token, region_name="ap-southeast-1")
 
-    bucket_name = "gerson-airflow"
-    key = "train.csv"
+    bucket_name = "trial-gerson"
+    key = "train_2.csv"
 
     # Write data to a file on S3
     csv_buffer = io.StringIO()
     df.to_csv(csv_buffer, index=False)
 
     s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=key)
-    
-
