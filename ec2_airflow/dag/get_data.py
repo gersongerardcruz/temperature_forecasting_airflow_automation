@@ -1,14 +1,10 @@
 import pandas as pd
 import boto3
 import io 
-import os
 from openmeteo_py import Hourly, Options, OWmanager
 from datetime import datetime
-from dotenv import load_dotenv
 
-load_dotenv()
-
-def run_get_weather_data(latitude=14.5995, longitude=120.9842, past_days=2, timezone="Asia/Shanghai"):
+def get_weather_data(filename, bucket_name, latitude=14.5995, longitude=120.9842, past_days=2, timezone="Asia/Shanghai"):
     """
     Retrieves weather data from OpenWeather API and returns a pandas dataframe with relevant columns.
 
@@ -49,15 +45,11 @@ def run_get_weather_data(latitude=14.5995, longitude=120.9842, past_days=2, time
     ]
     df = df[columns_to_keep]
 
-    access_key = os.getenv("AWS_ACCESS_KEY")
-    secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-    session_token = os.getenv("AWS_SESSION_TOKEN")
-
     # Create an S3FileSystem object with the IAM role specified
-    s3 = boto3.client('s3', aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token, region_name="ap-southeast-1")
+    s3 = boto3.client('s3')
 
-    bucket_name = "trial-gerson"
-    key = "train_2.csv"
+    bucket_name = bucket_name
+    key = f"{filename}.csv"
 
     # Write data to a file on S3
     csv_buffer = io.StringIO()
