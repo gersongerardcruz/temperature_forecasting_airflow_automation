@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils import *
 import h2o
 import mlflow
+import joblib
 from mlflow.tracking import MlflowClient
 from h2o.automl import H2OAutoML, get_leaderboard
 
@@ -68,8 +69,11 @@ def train_automl_model(train_data: pd.DataFrame, target_column: str, max_models:
         best_model_id = leaderboard.loc[0, "model_id"]
         best_model = h2o.get_model(best_model_id)
 
-        # Save the H2O model to disk locally to prepare for ec2 deployment
-        model_path = h2o.download_model(best_model, path='ec2_deployment/model')
+        # Save the model using joblib
+        joblib.dump(best_model, "ec2_airflow/model/model.pkl")
+
+        # Save the H2O model to disk locally to prepare for ec2 deployment in case of h2o usage
+        model_path = h2o.download_model(best_model, path='ec2_airflow/model/')
 
         # Log the H2O model artifact to MLflow
         client.log_artifact(run_id, model_path)
