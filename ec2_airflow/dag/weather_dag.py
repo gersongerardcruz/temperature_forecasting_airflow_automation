@@ -5,7 +5,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
-from get_data import *
+from utils import *
 
 # Get the current timestamp in UTC
 timestamp = datetime.utcnow().strftime('%Y%m%dT%H%M%S')
