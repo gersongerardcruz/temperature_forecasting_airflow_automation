@@ -1,10 +1,14 @@
 import pandas as pd
 import boto3
 import io 
+import json
+import joblib
+import pickle
+import xgboost as xgb
 from openmeteo_py import Hourly, Options, OWmanager
 from datetime import datetime
 from airflow.hooks.S3_hook import S3Hook
-from io import StringIO
+from io import StringIO, BytesIO
 
 def get_weather_data(filename, bucket_name, latitude=14.5995, longitude=120.9842, past_days=2, timezone="Asia/Shanghai"):
     """
@@ -119,10 +123,65 @@ def preprocess_data(filename, bucket_name):
     df_processed = df_processed.reset_index(drop=True)
 
     bucket_name = bucket_name
-    key = f"{filename}_processed.csv"
+    key = f"processed_{filename}"
 
     # Write data to a file on S3
     csv_buffer = io.StringIO()
     df.to_csv(csv_buffer, index=False)
 
     s3.put_object(Body=csv_buffer.getvalue(), Bucket=bucket_name, Key=key)
+
+def train_model(filename, bucket_name, target_column):
+    # Connect to S3
+    s3 = boto3.client('s3')
+
+    filename = f"processed_{filename}.csv"
+    obj = s3.get_object(Bucket=bucket_name, Key=filename)
+
+    # Load the processed weather data into a Pandas DataFrame
+    df = pd.read_csv(StringIO(obj['Body'].read().decode('utf-8')))
+    df = remove_id_column(df)
+
+    X = df.drop(target_column, axis=1)
+    y = df[target_column]
+
+    # Train the XGBoost model based on updated data
+    model = xgb.XGBRegressor(objective="reg:squarederror", random_state=42)
+    model.fit(X, y)
+
+    # Serialize the model to a byte stream
+    model_bytes = pickle.dumps(model, protocol=2)
+    key = "model.pkl"
+
+    s3.put_object(Body=model_bytes, Bucket=bucket_name, Key=key)
+
+def make_predictions(model_path, filename, bucket_name, target_column):
+    # Connect to S3
+    s3 = boto3.client('s3')
+
+    # Get the model and processed weather data file from S3
+    model_obj = s3.get_object(Bucket=bucket_name, Key=model_path)
+    filename = f"processed_{filename}.csv"
+    obj = s3.get_object(Bucket=bucket_name, Key=filename)
+
+    # Load the processed weather data into a Pandas DataFrame
+    df = pd.read_csv(StringIO(obj['Body'].read().decode('utf-8')))
+    df = remove_id_column(df)
+
+    # Remove column to forecast, should it exist
+    df = df.drop(target_column, axis=1)
+
+    # Load the model from a joblib file
+    model_bytes = model_obj['Body'].read()
+    model = pickle.loads(model_bytes)
+
+    preds = model.predict(df)
+    preds_list = preds.tolist()
+
+    # Serialize the predictions to JSON
+    json_data = json.dumps(preds_list)
+
+    bucket_name = bucket_name
+    key = "predictions.json"
+
+    s3.put_object(Body=json_data, Bucket=bucket_name, Key=key)
