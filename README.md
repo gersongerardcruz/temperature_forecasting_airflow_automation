@@ -151,7 +151,7 @@ The VScode extension will look something like this once connected:
 
 ![vscode_remote](images/vscode_remote.jpg)
 
-Then, continue with creating a new folder in the Ubuntu server named `dag` and copy and paste the contents of `ec2_airflow` into it. Next, click on the airflow folder and go to `airflow.cfg` and change the `dags_folder = /home/ubuntu/airflow/dags` into `dags_folder = /home/ubuntu/dag` where we placed our airflow scripts. This lets airflow know that the scripts are located in that directory. 
+Then, continue with creating a new folder in the Ubuntu server named `dag` and copy and paste the contents of `ec2_airflow` into it. Next, click on the airflow folder and go to `airflow.cfg` and change the `dags_folder = /home/ubuntu/airflow/dags` into `dags_folder = /home/ubuntu/dag` where we placed our airflow scripts. This lets airflow know that the scripts are located in that directory. **Don't forget to change the bucket_name in `dag.py` to the bucket name you put when creating the S3 bucket**
 
 Once done, restart the airflow server, by clicking `Ctrl + C` in the ubuntu terminal and running `airflow standalone` again. 
 
