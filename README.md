@@ -103,7 +103,7 @@ You now have logged into a running EC2 instance.
 
 ## Setting up airflow
 
-Next, you can either clone the repository into the ubuntu server but that will require setting up the proper verifications which could take a while. Alternative, you copy and paste the contents of `requirements.sh` into the ubuntu terminal. This will install all necessary libraries for this project.
+Next, you can either clone the repository into the ubuntu server but that will require setting up the proper verifications which could take a while. Alternative, you copy and paste the contents of `requirements.sh` into the ubuntu terminal. This will install all necessary libraries for this project. One example of a necessary library is the `awscli` as without it, we cannot access the aws services like S3 and EC2 and make them communicate with airflow. 
 
 Then, check whether airflow is installed by running `airflow` in the terminal.
 
@@ -192,3 +192,11 @@ Based on this project using Apache Airflow to automate a data pipeline with an A
 3. Explore additional AWS services: Consider exploring other AWS services that can complement or enhance your data pipeline. For example, one could leverage Amazon Redshift for data warehousing and analytics, Amazon RDS for managed relational databases, AWS Lambda for serverless computing, or Amazon SageMaker for machine learning model hosting and training.
 
 ## References
+
+- Checkout this great tutorial by Darshil Parmar: https://www.youtube.com/watch?v=q8q3OFFfY6c
+    - This video is what inspired me to try out airflow.
+- https://github.com/apache/airflow-client-python/blob/main/airflow_client/README.md
+- https://docs.aws.amazon.com/ec2/index.html
+- https://docs.aws.amazon.com/s3/index.html
+- https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html
+- https://stackoverflow.com/ (A lot of this!)
