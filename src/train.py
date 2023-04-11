@@ -5,10 +5,6 @@ import sys
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from joblib import dump
-
-# Add the src directory to the system path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from utils import *
 
 df = pd.read_csv("data/processed/train.csv", index_col=0)
