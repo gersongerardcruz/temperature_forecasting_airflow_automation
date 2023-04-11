@@ -9,7 +9,9 @@ from utils import get_weather_data, preprocess_data, make_predictions, train_mod
 
 # Construct the default_var using the timestamp
 default_filename = 'airflow_train'
-default_bucket_name = "gerson-airflow"
+
+# Replace bucket_name here with created bucket's name
+default_bucket_name = "<bucket_name>"
 
 # Load configuration from the Trigger DAG with Config option
 config = Variable.get("config", default_var={}, deserialize_json=True)
