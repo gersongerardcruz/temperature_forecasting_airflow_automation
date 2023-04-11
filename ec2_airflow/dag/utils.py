@@ -7,7 +7,6 @@ import pickle
 import xgboost as xgb
 from openmeteo_py import Hourly, Options, OWmanager
 from datetime import datetime
-from airflow.hooks.S3_hook import S3Hook
 from io import StringIO, BytesIO
 
 def get_weather_data(filename, bucket_name, latitude=14.5995, longitude=120.9842, past_days=2, timezone="Asia/Shanghai"):
