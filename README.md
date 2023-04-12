@@ -1,4 +1,4 @@
-# End-to-End Weather Forecasting with Apache Airflow Automation
+# End-to-End Temperature Forecasting with Apache Airflow Automation
 
 ## Project Information
 
