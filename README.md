@@ -38,16 +38,13 @@ Technical teams can generate value by using Airflow in their workflows by having
 
     ├── README.md          <- The top-level documentation for this project.
     ├── data
-    │   ├── processed      <- The final data sets for customer segmentation.
-    │   ├── interim        <- Folder for holding data with intermediate transformations
-    │   └── raw            <- The original, immutable datasets.
+    │   ├── processed      <- The sample processed data
+    │   └── raw            <- The API collected sample data
     ├── ec2_airflow        <- 
     │   ├── dag            <- Folder containing scripts for deploying airflow in ec2
     ├── images             <- The media used in the README documentation
     ├── requirements.sh        <- The requirements file for reproducing the project
-    ├── src                <- Folder containing all source code in the project
-    │   ├── backend        <- Folder for all files for setting up the backend 
-    │   ├── frontend       <- Folder for all files for setting up the frontend
+    ├── src                <- Folder containing all source code to reproduce the data collection, preprocessing, and model training locally
 
 ## Key Project Files
 
@@ -60,7 +57,7 @@ Technical teams can generate value by using Airflow in their workflows by having
 - `src`: Folder containing Python scripts for collecting data, preprocessing data, and training an ML model
     - `get_data.py`: Python file for using Open-Meteo to collect two-day historical weather data
     - `utils.py`: Python file containing all helper functions for data gathering, preprocessing, and model training
-    - `preprocess.py`: Python file for performing preprocessing steps such as creating lag windows
+    - `preprocess.py`: Python file for performing preprocessing steps such as creating lag columns
     - `train.py`: Python file for training an XGBoost model for forecasting
 
 ## Project Instructions
@@ -82,7 +79,7 @@ When the AWS Account is active, follow the succeeding steps to launch an EC2 ins
 
 *Notes*
 
-1. The allow HTTPS and HTTP traffic from anywhere option is not suggested in production environments. It is better to tailor fit the exact addresses/range of addresses but for the purpose of learning, it should suffice.
+1. The `allow HTTPS and HTTP traffic from anywhere` options are not suggested in production environments. It is better to tailor fit the exact addresses/range of addresses but for the purpose of learning, it should suffice.
 2. Ubuntu is not a required option, but it needs to be chosen to follow the commands used in this documentation. 
 
 ## Logging into the EC2 Instance
@@ -103,7 +100,7 @@ You now have logged into a running EC2 instance.
 
 ## Setting up airflow
 
-Next, you can either clone the repository into the ubuntu server but that will require setting up the proper verifications which could take a while. Alternative, you copy and paste the contents of `requirements.sh` into the ubuntu terminal. This will install all necessary libraries for this project. One example of a necessary library is the `awscli` as without it, we cannot access the aws services like S3 and EC2 and make them communicate with airflow. 
+Next, you can either clone the repository into the ubuntu server but that will require setting up the proper Git verifications which could take a while. Alternatively, you copy and paste the contents of `requirements.sh` into the ubuntu terminal. This will install all necessary libraries for this project. **One example of a necessary library is the `awscli` as without it, we cannot access the aws services like S3 and EC2 and make them communicate with airflow.** 
 
 Then, check whether airflow is installed by running `airflow` in the terminal.
 
@@ -129,7 +126,7 @@ Log into it with the username `admin` and the password being the password genera
 
 Now, we want to make sure that our EC2 instance can communicate with AWS S3 to store all the files we have. To do that, we need to assign IAM roles to our EC2 instance. To do this, follow these steps:
 
-1. Go to your EC2 instance and click on its ID
+1. Go to your EC2 instance and click on its instance ID
 2. Click on Actions --> Security --> Modify IAM roles.
 3. Click create new IAM role and click create role.
 4. Click on EC2 as the service and add the `AWSEC2FullAccess` and `AWSS3FullAccess` roles as shown below:
@@ -151,7 +148,9 @@ The VScode extension will look something like this once connected:
 
 ![vscode_remote](images/vscode_remote.jpg)
 
-Then, continue with creating a new folder in the Ubuntu server named `dag` and copy and paste the contents of `ec2_airflow` into it. Next, click on the airflow folder and go to `airflow.cfg` and change the `dags_folder = /home/ubuntu/airflow/dags` into `dags_folder = /home/ubuntu/dag` where we placed our airflow scripts. This lets airflow know that the scripts are located in that directory. **Don't forget to change the bucket_name in `dag.py` to the bucket name you put when creating the S3 bucket**
+Then, continue with creating a new folder in the Ubuntu server named `dag` and copy and paste the contents of `ec2_airflow` into it. Next, click on the airflow folder and go to `airflow.cfg` and change the `dags_folder = /home/ubuntu/airflow/dags` into `dags_folder = /home/ubuntu/dag` where we placed our airflow scripts. This lets airflow know that the scripts are located in that directory. 
+
+**Don't forget to change the bucket_name in `dag.py` to the bucket name you put when creating the S3 bucket**
 
 Once done, restart the airflow server, by clicking `Ctrl + C` in the ubuntu terminal and running `airflow standalone` again. 
 
